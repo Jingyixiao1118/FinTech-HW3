@@ -63,13 +63,13 @@ class EqualWeightPortfolio:
         assets = df.columns[df.columns != self.exclude]
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
 
-        """
-        TODO: Complete Task 1 Below
-        """
+         equal_weight = 1 / len(assets)
 
-        """
-        TODO: Complete Task 1 Above
-        """
+        for asset in assets:
+            self.portfolio_weights[asset] = equal_weight
+
+        self.portfolio_weights[self.exclude] = 0
+        
         self.portfolio_weights.ffill(inplace=True)
         self.portfolio_weights.fillna(0, inplace=True)
 
@@ -192,12 +192,12 @@ class MeanVariancePortfolio:
 
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
-                w = model.addMVar(n, name="w", ub=1)
-                model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
-
-                """
-                TODO: Complete Task 3 Below
-                """
+                
+                w = model.addVars(n, lb=0, name="w")
+                model.addConstr(w.sum() == 1, "sum")  # 权重和为1的约束
+                portfolio_return = gp.quicksum(w[i] * mu[i] for i in range(n))
+                portfolio_risk = gp.quicksum(w[i] * w[j] * Sigma[i, j] for i in range(n) for j in range(n))
+                model.setObjective(portfolio_return - gamma * portfolio_risk, gp.GRB.MAXIMIZE)
                 model.optimize()
 
                 # Check if the status is INF_OR_UNBD (code 4)
