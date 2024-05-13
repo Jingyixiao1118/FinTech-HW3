@@ -63,7 +63,7 @@ class EqualWeightPortfolio:
         assets = df.columns[df.columns != self.exclude]
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
 
-         equal_weight = 1 / len(assets)
+        equal_weight = 1 / len(assets)
 
         for asset in assets:
             self.portfolio_weights[asset] = equal_weight
