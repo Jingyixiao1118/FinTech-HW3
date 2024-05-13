@@ -71,13 +71,24 @@ class MyPortfolio:
             index=self.price.index, columns=self.price.columns
         )
 
-        """
-        TODO: Complete Task 4 Below
-        """
+        momentum = self.returns[assets].rolling(window=self.lookback).mean()
 
-        """
-        TODO: Complete Task 4 Above
-        """
+        # Assign weights based on momentum; positive momentum gets weight, negative gets zero (simple way to stay long only)
+        positive_momentum = momentum.clip(lower=0)
+        sum_momentum = positive_momentum.sum(axis=1)
+        
+        # Normalize weights to sum to 1
+        self.portfolio_weights = positive_momentum.div(sum_momentum, axis=0)
+        
+        # Handle any divisions by zero or NaN entries by replacing them with 0
+        self.portfolio_weights.fillna(0, inplace=True)
+
+        # Forward fill any remaining NaNs, which occur on days with all zero momentum
+        self.portfolio_weights.ffill(inplace=True)
+
+        # Set weights for the excluded asset to 0
+        self.portfolio_weights[self.exclude] = 0
+
 
         self.portfolio_weights.ffill(inplace=True)
         self.portfolio_weights.fillna(0, inplace=True)
