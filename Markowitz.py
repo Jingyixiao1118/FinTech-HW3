@@ -114,13 +114,17 @@ class RiskParityPortfolio:
         # Calculate the portfolio weights
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
 
-        """
-        TODO: Complete Task 2 Below
-        """
+        volatility = df[assets].pct_change().rolling(window=self.lookback).std()
 
-        """
-        TODO: Complete Task 2 Above
-        """
+        # Inverse volatility weighting
+        inverse_volatility = 1 / volatility
+
+        # Normalize weights so that each row sums to 1
+        sum_inverse_volatility = inverse_volatility.sum(axis=1)
+        self.portfolio_weights[assets] = inverse_volatility.divide(sum_inverse_volatility, axis=0)
+
+        # Set weights for the excluded asset to 0
+        self.portfolio_weights[self.exclude] = 0
 
         self.portfolio_weights.ffill(inplace=True)
         self.portfolio_weights.fillna(0, inplace=True)
