@@ -197,11 +197,17 @@ class MeanVariancePortfolio:
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
                 
-                w = model.addVars(n, lb=0, name="w")
-                model.addConstr(w.sum() == 1, "sum")  # 权重和为1的约束
-                portfolio_return = gp.quicksum(w[i] * mu[i] for i in range(n))
-                portfolio_risk = gp.quicksum(w[i] * w[j] * Sigma[i, j] for i in range(n) for j in range(n))
-                model.setObjective(portfolio_return - gamma * portfolio_risk, gp.GRB.MAXIMIZE)
+                # Initialize decision variables
+                w = model.addMVar(n, name="w", lb=0)
+
+                # Define the objective function
+                portfolio_return = mu @ w
+                portfolio_risk = w @ Sigma @ w
+                model.setObjective(portfolio_return - (gamma / 2) * portfolio_risk, gp.GRB.MAXIMIZE)
+
+                # Add budget constraint
+                model.addConstr(w.sum() == 1)
+                
                 model.optimize()
 
                 # Check if the status is INF_OR_UNBD (code 4)
