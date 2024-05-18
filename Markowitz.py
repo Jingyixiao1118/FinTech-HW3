@@ -197,15 +197,12 @@ class MeanVariancePortfolio:
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
                 
-                # Initialize decision variables
                 w = model.addMVar(n, name="w", lb=0)
 
-                # Define the objective function
                 portfolio_return = mu @ w
                 portfolio_risk = w @ Sigma @ w
                 model.setObjective(portfolio_return - (gamma / 2) * portfolio_risk, gp.GRB.MAXIMIZE)
 
-                # Add budget constraint
                 model.addConstr(w.sum() == 1)
                 
                 model.optimize()
